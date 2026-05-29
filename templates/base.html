@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroTrack</title>
+<link rel="stylesheet" href="{% static 'css/font.css' %}">
+<link rel="stylesheet" href="{% static 'css/custom.css' %}">
+<script src="{% static 'js/chart.js' %}"></script>
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/sweetalert.js' %}"></script>
+</head>
+<body>
+<div class="container">
+    <div id="toast" class="toast-success" style="display:none;">
+        <span id="toast-message"></span>
+        <span class="toast-close">&times;</span>
+    </div>
+    <div class="header">
+        <div class="logo">
+            Macro<span>Track</span>
+        </div>
+        <div class="header-right">
+            <div class="goal-pill">
+                <div class="goal-item">
+                    <span>🔥 Calories</span>
+                    <strong>{{ daily_goal }} kcal</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>💪 Protein</span>
+                    <strong>{{ protein_goal }}g</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>🍞 Carbs</span>
+                    <strong>{{ carbs_goal }}g</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>🥑 Fats</span>
+                    <strong>{{ fats_goal }}g</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>🌾 Fiber</span>
+                    <strong>{{ fiber_goal }}g</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>🍭 Sugar</span>
+                    <strong>{{ sugar_goal }}g</strong>
+                </div>
+            </div>
+            <div class="profile"></div>
+        </div>
+    </div>
+    <div class="hero">
+        <div class="hero-card">
+            <h1>
+                Eat Better.<br>
+                Track Smarter.
+            </h1>
+            <p>
+                Monitor your calories, proteins, carbs and fats with a clean modern nutrition dashboard designed for fitness and healthy lifestyle tracking.
+            </p>
+        </div>
+        <div class="summary-card">
+            <h3>Today's Summary</h3>
+            <div class="summary-box">
+                <span>Total Calories</span>
+                <h2 id="TotalCalories">{{ todays_calories }}</h2>
+            </div>
+            <div class="summary-box">
+                <span>Protein Intake</span>
+                <h2 id="TotalProtein">{{ todays_proteins }}</h2>
+            </div>
+            <div class="summary-box">
+                <span>Carbs Intake</span>
+                <h2 id="TotalCarbs">{{ todays_carbs }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="food-section">
+        <div class="section-top">
+            <div>
+                <h2>Food Tracker</h2>
+                <p>Select foods and track your nutrition instantly</p>
+            </div>
+            <div class="day-status" id="goalPercentage">
+                {{ goal_percentage }}% Goal Completed
+            </div>
+        </div>
+        <div class="food-form">
+            <form id="foodForm" method="POST">
+                {% csrf_token %}
+                <div class="select-wrapper">
+                    <select name="food" class="food-select" size="1">
+                        <option>Select Food Item</option>
+                        {% for food in foods %}
+                        <option value="{{ food.id }}">{{ food.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="add-btn">Add</button>
+            </form>
+        </div>
+        <div class="table-wrapper">
+            <table class="food-table" id="foodTable">
+                <thead>
+                    <tr>
+                        <th>Food</th>
+                        <th>Calories</th>
+                        <th>Protein</th>
+                        <th>Carbs</th>
+                        <th>Fats</th>
+                        <th>Fiber</th>
+                        <th>Sugar</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="foodTableBody">
+                    {% if user_food_consumes %}
+                        {% for user_food_consume in user_food_consumes %}
+                        <tr id="row-{{ user_food_consume.id }}">
+                            <td>
+                                <div class="food-info">
+                                    <div class="food-icon">
+                                        <img src="{{ user_food_consume.food_consumed.image.url }}" alt="{{ user_food_consume.food_consumed.name }}">
+                                    </div>
+                                    <div>
+                                        <div class="food-name">
+                                            {{ user_food_consume.food_consumed.name }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="kcal">
+                                {{ user_food_consume.food_consumed.calories }}
+                            </td>
+                            <td class="protein">
+                                {{ user_food_consume.food_consumed.protein }}
+                            </td>
+                            <td class="carbs">
+                                {{ user_food_consume.food_consumed.carbs }}
+                            </td>
+                            <td class="fats">
+                                {{ user_food_consume.food_consumed.fats }}
+                            </td>
+                            <td class="fiber">
+                                {{ user_food_consume.food_consumed.fiber }}
+                            </td>
+                            <td class="sugar">
+                                {{ user_food_consume.food_consumed.sugar }}
+                            </td>
+                            <td>
+                                <button class="remove-btn" data-id="{{ user_food_consume.id }}">
+                                    ×
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <tr id="totalRow">
+                            <th>Total</th>
+                            <td class="kcal" id="totalCalories"></td>
+                            <td class="protein" id="totalProtein"></td>
+                            <td class="carbs" id="totalCarbs"></td>
+                            <td class="fats" id="totalFats"></td>
+                            <td class="fiber" id="totalFiber"></td>
+                            <td class="sugar" id="totalSugar"></td>
+                            <td></td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding:20px;">
+                                No records found
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="bottom-grid">
+        <div class="chart-card">
+            <h3>Weekly Calories Analytics</h3>
+            <canvas id="macroChart"></canvas>
+        </div>
+        <div class="macro-card">
+        <h3>Macro Goals</h3>
+            <div class="progress-item">
+                <div class="progress-top">
+                    <span>Calories</span>
+                    <span id="caloriesPercent">{{ calories_percent }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="red"
+                        id="caloriesBar"
+                        style="width: {{ calories_percent }}%;">
+                    </div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-top">
+                    <span>Protein</span>
+                    <span id="proteinPercent">{{ protein_percent }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="purple"
+                        id="proteinBar"
+                        style="width: {{ protein_percent }}%;">
+                    </div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-top">
+                    <span>Carbs</span>
+                    <span id="Carbs">{{ carbs_percent }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="blue"
+                        id="carbsBar"
+                        style="width: {{ carbs_percent }}%;">
+                    </div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-top">
+                    <span>Fats</span>
+                    <span id="fatsPercent">{{ fats_percent }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="orange"
+                        id="fatsBar"
+                        style="width: {{ fats_percent }}%;">
+                    </div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-top">
+                    <span>Fiber</span>
+                    <span id="fiberPercent">{{ fiber_percent }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="green"
+                        id="fiberBar"
+                        style="width: {{ fiber_percent }}%;">
+                    </div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-top">
+                    <span>Sugar</span>
+                    <span id="sugarPercent">{{ sugar_percent }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="pink"
+                        id="sugarBar"
+                        style="width: {{ sugar_percent }}%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ labels|json_script:"labels-data" }}
+{{ calories_data|json_script:"calories-data" }}
+{{ protein_data|json_script:"protein-data" }}
+{{ carbs_data|json_script:"carbs-data" }}
+{{ fats_data|json_script:"fats-data" }}
+{{ fiber_data|json_script:"fiber-data" }}
+{{ sugar_data|json_script:"sugar-data" }}
+<script src="{% static 'js/custom.js' %}"></script>
+<script>
+    // validate form
+    $(document).on('click', '.add-btn', function(e) {
+        e.preventDefault();
+        $('.error-text').remove();
+        let food = $('[name="food"]').val();
+        if (food === 'Select Food Item' || food === '') {
+            $('.select-wrapper').after(
+                '<div class="error-text" style="color:red; margin-top:19px;">Please select food item</div>'
+            );
+            return false;
+        }
+        $('#foodForm').submit();
+    });
+
+    // delete consume foods
+    $(document).on('click','.remove-btn',function(e){
+        e.preventDefault();
+        let id = $(this).data('id');
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to remove this food item?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if(result.isConfirmed){
+                $.ajax({
+                    type:"POST",
+                    url:"{% url 'consume_delete' %}",
+                    data:{
+                        'id': id,
+                        'csrfmiddlewaretoken': "{{ csrf_token }}"
+                    },
+                    success:function(res){
+                        if(res.success){
+                            $('#row-' + res.id).remove();
+                            $('#TotalCalories').text(res.todays_calories);
+                            $('#TotalProtein').text(res.todays_proteins);
+                            $('#TotalCarbs').text(res.todays_carbs);
+                            macroChart.data.labels = res.labels;
+                            macroChart.data.datasets[0].data = res.calories_data;
+                            macroChart.data.datasets[1].data = res.protein_data;
+                            macroChart.data.datasets[2].data = res.carbs_data;
+                            macroChart.data.datasets[3].data = res.fats_data;
+                            macroChart.data.datasets[4].data = res.fiber_data;
+                            macroChart.data.datasets[5].data = res.sugar_data;
+                            macroChart.update();
+                            calculateTotals();
+                            $('#caloriesPercent').text(res.calories_percent + '%');
+                            $('#proteinPercent').text(res.protein_percent + '%');
+                            $('#Carbs').text(res.carbs_percent + '%');
+                            $('#fatsPercent').text(res.fats_percent + '%');
+                            $('#fiberPercent').text(res.fiber_percent + '%');
+                            $('#sugarPercent').text(res.sugar_percent + '%');
+                            $('#caloriesBar').css('width', res.calories_percent + '%');
+                            $('#proteinBar').css('width', res.protein_percent + '%');
+                            $('#carbsBar').css('width', res.carbs_percent + '%');
+                            $('#fatsBar').css('width', res.fats_percent + '%');
+                            $('#fiberBar').css('width', res.fiber_percent + '%');
+                            $('#sugarBar').css('width', res.sugar_percent + '%');
+                            if($('#foodTableBody tr').length === 1){
+                                $('#foodTableBody').html(`
+                                    <tr>
+                                        <td colspan="8" style="text-align:center; padding:20px;">
+                                            No records found
+                                        </td>
+                                    </tr>
+                                `);
+                            }
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: res.message,
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            $('#totalCalories').text(res.todays_calories)
+                            $('#totalProtein').text(res.todays_proteins)
+                            $('#totalCarbs').text(res.todays_carbs)
+                            $('#goalPercentage').text(res.goal_percentage + '% Goal Completed');
+                        }else{
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Something went wrong',
+                                icon: 'error'
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>
