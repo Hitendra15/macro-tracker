@@ -1,41 +1,111 @@
+    const labels = JSON.parse(document.getElementById('labels-data').textContent);
+    const caloriesData = JSON.parse(document.getElementById('calories-data').textContent);
+    const proteinData = JSON.parse(document.getElementById('protein-data').textContent);
+    const carbsData = JSON.parse(document.getElementById('carbs-data').textContent);
+    const fatsData = JSON.parse(document.getElementById('fats-data').textContent);
+    const fiberData = JSON.parse(document.getElementById('fiber-data').textContent);
+    const sugarData = JSON.parse(document.getElementById('sugar-data').textContent);
     const ctx = document.getElementById('macroChart');
-    new Chart(ctx, {
+    const macroChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-            datasets: [{
-                label:'Calories',
-                data:[1800,2200,2100,2400,2300,2600,2340],
-                borderColor:'#8b5cf6',
-                backgroundColor:'rgba(139,92,246,0.15)',
-                fill:true,
-                tension:0.4,
-                borderWidth:4,
-                pointRadius:0
-            }]
-        },
-        options:{
-            responsive:true,
-            plugins:{
-                legend:{
-                    display:false
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Calories',
+                    data: caloriesData,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139,92,246,0.08)',
+                    fill: false,
+                    tension: 0.4,
+                    borderWidth: 3
+                },
+                {
+                    label: 'Protein',
+                    data: proteinData,
+                    borderColor: '#22c55e',
+                    fill: false,
+                    tension: 0.4,
+                    borderWidth: 2
+                },
+                {
+                    label: 'Carbs',
+                    data: carbsData,
+                    borderColor: '#f59e0b',
+                    fill: false,
+                    tension: 0.4,
+                    borderWidth: 2
+                },
+                {
+                    label: 'Fats',
+                    data: fatsData,
+                    borderColor: '#ef4444',
+                    fill: false,
+                    tension: 0.4,
+                    borderWidth: 2
+                },
+                {
+                    label: 'Fiber',
+                    data: fiberData,
+                    borderColor: '#06b6d4',
+                    fill: false,
+                    tension: 0.4,
+                    borderWidth: 2
+                },
+                {
+                    label: 'Sugar',
+                    data: sugarData,
+                    borderColor: '#ec4899',
+                    fill: false,
+                    tension: 0.4,
+                    borderWidth: 2
                 }
+            ]
+        },
+            options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
             },
-            scales:{
-                x:{
-                    ticks:{
-                        color:'#94a3b8'
-                    },
-                    grid:{
-                        color:'rgba(255,255,255,0.05)'
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#1e293b',
+                        boxWidth: 20,
+                        padding: 20
                     }
                 },
-                y:{
-                    ticks:{
-                        color:'#94a3b8'
+                tooltip: {
+                    enabled: true,
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#1e293b',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#8b5cf6',
+                    borderWidth: 1,
+                    padding: 12
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#64748b'
                     },
-                    grid:{
-                        color:'rgba(255,255,255,0.05)'
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#64748b'
+                    },
+                    grid: {
+                        color: 'rgba(0,0,0,0.05)'
                     }
                 }
             }
@@ -53,7 +123,7 @@
         let totalFats = 0;
         let totalFiber = 0;
         let totalSugar = 0;
-        $('#foodTableBody tr').each(function(){
+        $('#foodTableBody tr:not(#totalRow)').each(function(){
             totalCalories += parseFloat($(this).find('.kcal').text()) || 0;
             totalProtein += parseFloat($(this).find('.protein').text()) || 0;
             totalCarbs += parseFloat($(this).find('.carbs').text()) || 0;

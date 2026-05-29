@@ -23,7 +23,35 @@
         </div>
         <div class="header-right">
             <div class="goal-pill">
-                Daily Goal: 2500 kcal
+                <div class="goal-item">
+                    <span>🔥 Calories</span>
+                    <strong>{{ daily_goal }} kcal</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>💪 Protein</span>
+                    <strong>{{ protein_goal }}g</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>🍞 Carbs</span>
+                    <strong>{{ carbs_goal }}g</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>🥑 Fats</span>
+                    <strong>{{ fats_goal }}g</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>🌾 Fiber</span>
+                    <strong>{{ fiber_goal }}g</strong>
+                </div>
+                <div class="divider"></div>
+                <div class="goal-item">
+                    <span>🍭 Sugar</span>
+                    <strong>{{ sugar_goal }}g</strong>
+                </div>
             </div>
             <div class="profile"></div>
         </div>
@@ -160,37 +188,89 @@
             <canvas id="macroChart"></canvas>
         </div>
         <div class="macro-card">
-            <h3>Macro Goals</h3>
+        <h3>Macro Goals</h3>
             <div class="progress-item">
                 <div class="progress-top">
-                    <span>Protein</span>
-                    <span>82%</span>
+                    <span>Calories</span>
+                    <span id="caloriesPercent">{{ calories_percent }}%</span>
                 </div>
                 <div class="progress">
-                    <div class="purple"></div>
+                    <div class="red"
+                        id="caloriesBar"
+                        style="width: {{ calories_percent }}%;">
+                    </div>
                 </div>
             </div>
             <div class="progress-item">
                 <div class="progress-top">
-                    <span>Carbohydrates</span>
-                    <span>70%</span>
+                    <span>Protein</span>
+                    <span id="proteinPercent">{{ protein_percent }}%</span>
                 </div>
                 <div class="progress">
-                    <div class="blue"></div>
+                    <div class="purple"
+                        id="proteinBar"
+                        style="width: {{ protein_percent }}%;">
+                    </div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-top">
+                    <span>Carbs</span>
+                    <span id="Carbs">{{ carbs_percent }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="blue"
+                        id="carbsBar"
+                        style="width: {{ carbs_percent }}%;">
+                    </div>
                 </div>
             </div>
             <div class="progress-item">
                 <div class="progress-top">
                     <span>Fats</span>
-                    <span>50%</span>
+                    <span id="fatsPercent">{{ fats_percent }}%</span>
                 </div>
                 <div class="progress">
-                    <div class="orange"></div>
+                    <div class="orange"
+                        id="fatsBar"
+                        style="width: {{ fats_percent }}%;">
+                    </div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-top">
+                    <span>Fiber</span>
+                    <span id="fiberPercent">{{ fiber_percent }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="green"
+                        id="fiberBar"
+                        style="width: {{ fiber_percent }}%;">
+                    </div>
+                </div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-top">
+                    <span>Sugar</span>
+                    <span id="sugarPercent">{{ sugar_percent }}%</span>
+                </div>
+                <div class="progress">
+                    <div class="pink"
+                        id="sugarBar"
+                        style="width: {{ sugar_percent }}%;">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{{ labels|json_script:"labels-data" }}
+{{ calories_data|json_script:"calories-data" }}
+{{ protein_data|json_script:"protein-data" }}
+{{ carbs_data|json_script:"carbs-data" }}
+{{ fats_data|json_script:"fats-data" }}
+{{ fiber_data|json_script:"fiber-data" }}
+{{ sugar_data|json_script:"sugar-data" }}
 <script src="{% static 'js/custom.js' %}"></script>
 <script>
     // validate form
@@ -233,7 +313,27 @@
                             $('#TotalCalories').text(res.todays_calories);
                             $('#TotalProtein').text(res.todays_proteins);
                             $('#TotalCarbs').text(res.todays_carbs);
+                            macroChart.data.labels = res.labels;
+                            macroChart.data.datasets[0].data = res.calories_data;
+                            macroChart.data.datasets[1].data = res.protein_data;
+                            macroChart.data.datasets[2].data = res.carbs_data;
+                            macroChart.data.datasets[3].data = res.fats_data;
+                            macroChart.data.datasets[4].data = res.fiber_data;
+                            macroChart.data.datasets[5].data = res.sugar_data;
+                            macroChart.update();
                             calculateTotals();
+                            $('#caloriesPercent').text(res.calories_percent + '%');
+                            $('#proteinPercent').text(res.protein_percent + '%');
+                            $('#Carbs').text(res.carbs_percent + '%');
+                            $('#fatsPercent').text(res.fats_percent + '%');
+                            $('#fiberPercent').text(res.fiber_percent + '%');
+                            $('#sugarPercent').text(res.sugar_percent + '%');
+                            $('#caloriesBar').css('width', res.calories_percent + '%');
+                            $('#proteinBar').css('width', res.protein_percent + '%');
+                            $('#carbsBar').css('width', res.carbs_percent + '%');
+                            $('#fatsBar').css('width', res.fats_percent + '%');
+                            $('#fiberBar').css('width', res.fiber_percent + '%');
+                            $('#sugarBar').css('width', res.sugar_percent + '%');
                             if($('#foodTableBody tr').length === 1){
                                 $('#foodTableBody').html(`
                                     <tr>
